@@ -12,8 +12,8 @@ using Todo_App.Infrastructure.Persistence;
 namespace Todo_App.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250722010628_AddColourToTodoItem")]
-    partial class AddColourToTodoItem
+    [Migration("20250722062025_AddColourToTodoItems")]
+    partial class AddColourToTodoItems
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
