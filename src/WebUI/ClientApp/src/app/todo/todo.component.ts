@@ -32,8 +32,37 @@ export class TodoComponent implements OnInit {
     id: [null],
     listId: [null],
     priority: [''],
-    note: ['']
+    note: [''],
+    colour: [''],
   });
+
+  allowedColors = [
+    { name: 'White', value: '#FFFFFF' },
+    { name: 'Light Gray', value: '#F5F5F5' },
+    { name: 'Gray', value: '#E0E0E0' },
+    { name: 'Light Blue', value: '#E3F2FD' },
+    { name: 'Sky Blue', value: '#BBDEFB' },
+    { name: 'Cornflower Blue', value: '#90CAF9' },
+    { name: 'Azure', value: '#64B5F6' },
+    { name: 'Dodger Blue', value: '#42A5F5' },
+    { name: 'Light Green', value: '#E8F5E9' },
+    { name: 'Mint', value: '#C8E6C9' },
+    { name: 'Pastel Green', value: '#A5D6A7' },
+    { name: 'Soft Green', value: '#81C784' },
+    { name: 'Light Yellow', value: '#FFFDE7' },
+    { name: 'Pale Yellow', value: '#FFF9C4' },
+    { name: 'Banana Yellow', value: '#FFF59D' },
+    { name: 'Bright Yellow', value: '#FFEB3B' },
+    { name: 'Rose', value: '#FFEBEE' },
+    { name: 'Blush Pink', value: '#FFCDD2' },
+    { name: 'Light Coral', value: '#EF9A9A' },
+    { name: 'Soft Red', value: '#E57373' },
+    { name: 'Lavender', value: '#F3E5F5' },
+    { name: 'Light Purple', value: '#E1BEE7' },
+    { name: 'Mauve', value: '#CE93D8' },
+    { name: 'Orchid', value: '#BA68C8' },
+  ];
+
 
 
   constructor(
@@ -163,6 +192,8 @@ export class TodoComponent implements OnInit {
 
         this.selectedItem.priority = item.priority;
         this.selectedItem.note = item.note;
+        this.selectedItem.colour = item.colour;
+
         this.itemDetailsModalRef.hide();
         this.itemDetailsFormGroup.reset();
       },
