@@ -38,6 +38,10 @@ public class ApplicationDbContext : ApiAuthorizationDbContext<ApplicationUser>, 
         builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
 
         base.OnModelCreating(builder);
+
+        builder.Entity<TodoItem>().HasQueryFilter(e => !e.IsDeleted);
+        builder.Entity<TodoList>().HasQueryFilter(e => !e.IsDeleted);
+
         builder.Entity<TodoItem>()
                 .Property(e => e.Tags)
                 .HasConversion(
