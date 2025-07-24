@@ -1,5 +1,5 @@
 import { Component, TemplateRef, OnInit } from '@angular/core';
-import { FormBuilder } from '@angular/forms';
+import { FormBuilder, FormGroup, FormControl } from '@angular/forms';
 import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
 import {
   TodoListsClient, TodoItemsClient,
@@ -28,12 +28,20 @@ export class TodoComponent implements OnInit {
   listOptionsModalRef: BsModalRef;
   deleteListModalRef: BsModalRef;
   itemDetailsModalRef: BsModalRef;
+
+  tagInputControl = new FormControl('');
+  tags: string[] = [];
+  tagInput = '';
+  selectedTagFilters: string[] = [];
+  searchQuery: string = '';
+
   itemDetailsFormGroup = this.fb.group({
     id: [null],
     listId: [null],
     priority: [''],
     note: [''],
     colour: [''],
+    tags: this.fb.control([]),
   });
 
   allowedColors = [
@@ -63,8 +71,6 @@ export class TodoComponent implements OnInit {
     { name: 'Orchid', value: '#BA68C8' },
   ];
 
-
-
   constructor(
     private listsClient: TodoListsClient,
     private itemsClient: TodoItemsClient,
@@ -76,6 +82,7 @@ export class TodoComponent implements OnInit {
     this.listsClient.get().subscribe(
       result => {
         this.lists = result.lists;
+        console.log('Todo lists:', this.lists);
         this.priorityLevels = result.priorityLevels;
         if (this.lists.length) {
           this.selectedList = this.lists[0];
@@ -167,16 +174,25 @@ export class TodoComponent implements OnInit {
   // Items
   showItemDetailsModal(template: TemplateRef<any>, item: TodoItemDto): void {
     this.selectedItem = item;
+    console.log('Selected item:', this.selectedItem);
+    // Set form values
     this.itemDetailsFormGroup.patchValue(this.selectedItem);
+
+    // Initialize local tags array (used for rendering)
+    this.tags = item.tags ? [...item.tags] : [];
+    this.itemDetailsFormGroup.get('tags')?.setValue(this.tags);
 
     this.itemDetailsModalRef = this.modalService.show(template);
     this.itemDetailsModalRef.onHidden.subscribe(() => {
-        this.stopDeleteCountDown();
+      this.stopDeleteCountDown();
     });
   }
 
+
   updateItemDetails(): void {
+    this.itemDetailsFormGroup.get('tags')?.setValue(this.tags);
     const item = new UpdateTodoItemDetailCommand(this.itemDetailsFormGroup.value);
+    console.log(item);
     this.itemsClient.updateItemDetails(this.selectedItem.id, item).subscribe(
       () => {
         if (this.selectedItem.listId !== item.listId) {
@@ -193,6 +209,7 @@ export class TodoComponent implements OnInit {
         this.selectedItem.priority = item.priority;
         this.selectedItem.note = item.note;
         this.selectedItem.colour = item.colour;
+        this.selectedItem.tags = item.tags;
 
         this.itemDetailsModalRef.hide();
         this.itemDetailsFormGroup.reset();
@@ -292,4 +309,68 @@ export class TodoComponent implements OnInit {
     this.deleteCountDown = 0;
     this.deleting = false;
   }
+
+  addTag(): void {
+    const newTag = this.tagInputControl.value?.trim();
+
+    if (newTag && !this.tags.includes(newTag)) {
+      this.tags.push(newTag);
+      this.itemDetailsFormGroup.get('tags')?.setValue(this.tags);
+    }
+
+    this.tagInputControl.reset();
+  }
+
+  removeTag(tagToRemove: string): void {
+    this.tags = this.tags.filter(tag => tag !== tagToRemove);
+    this.itemDetailsFormGroup.get('tags')?.setValue(this.tags);
+  }
+
+  toggleTagFilter(tag: string): void {
+    const index = this.selectedTagFilters.indexOf(tag);
+    if (index === -1) {
+      this.selectedTagFilters.push(tag);
+    } else {
+      this.selectedTagFilters.splice(index, 1);
+    }
+  }
+
+  clearTagFilters(): void {
+    this.selectedTagFilters = [];
+  }
+
+  get filteredItems(): TodoItemDto[] {
+    const items = this.selectedList?.items ?? [];
+
+    return items.filter(item => {
+      const matchesTags =
+        this.selectedTagFilters.length === 0 ||
+        item.tags?.some(tag => this.selectedTagFilters.includes(tag));
+
+      const query = this.searchQuery.trim().toLowerCase();
+      const matchesSearch =
+        !query ||
+        (item.title?.toLowerCase().includes(query) ||
+          item.note?.toLowerCase().includes(query) ||
+          item.tags?.some(tag => tag.toLowerCase().includes(query)));
+
+      return matchesTags && matchesSearch;
+    });
+  }
+
+  getAllTags(): string[] {
+    const tagSet = new Set<string>();
+
+    for (const item of this.selectedList?.items ?? []) {
+      if (item.tags) {
+        for (const tag of item.tags) {
+          tagSet.add(tag);
+        }
+      }
+    }
+
+    return Array.from(tagSet).sort();
+  }
+
+
 }

@@ -36,3 +36,14 @@
 .modal-footer {
   display: block;
 }
+
+.todo-item-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+.todo-item-tags .badge {
+  font-size: 0.75rem;
+  padding: 0.3em 0.6em;
+}

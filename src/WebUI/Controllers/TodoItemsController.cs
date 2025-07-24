@@ -8,6 +8,8 @@ using Todo_App.Application.TodoItems.Queries.GetTodoItemsWithPagination;
 
 namespace Todo_App.WebUI.Controllers;
 
+[ApiController]
+[Route("api/[controller]")]
 public class TodoItemsController : ApiControllerBase
 {
     [HttpGet]
@@ -55,4 +57,6 @@ public class TodoItemsController : ApiControllerBase
 
         return NoContent();
     }
+
+
 }

@@ -577,7 +577,7 @@ export class TodoListsClient implements ITodoListsClient {
             }));
         }
         return _observableOf(null as any);
-    }
+  }
 }
 
 export interface IWeatherForecastClient {
@@ -855,6 +855,7 @@ export class UpdateTodoItemDetailCommand implements IUpdateTodoItemDetailCommand
     priority?: PriorityLevel;
     note?: string | undefined;
     colour?: string | undefined;
+    tags?: string[] | undefined;
 
     constructor(data?: IUpdateTodoItemDetailCommand) {
         if (data) {
@@ -872,6 +873,7 @@ export class UpdateTodoItemDetailCommand implements IUpdateTodoItemDetailCommand
             this.priority = _data["priority"];
             this.note = _data["note"];
             this.colour = _data["colour"];
+            this.tags = _data["tags"];
         }
     }
 
@@ -889,6 +891,7 @@ export class UpdateTodoItemDetailCommand implements IUpdateTodoItemDetailCommand
         data["priority"] = this.priority;
         data["note"] = this.note;
         data["colour"] = this.colour;
+        data["tags"] = this.tags;
         return data;
     }
 }
@@ -899,6 +902,7 @@ export interface IUpdateTodoItemDetailCommand {
     priority?: PriorityLevel;
     note?: string | undefined;
     colour?: string | undefined;
+    tags?: string[] | undefined;
 }
 
 export enum PriorityLevel {
@@ -1009,6 +1013,7 @@ export class TodoListDto implements ITodoListDto {
     title?: string | undefined;
     colour?: string | undefined;
     items?: TodoItemDto[];
+    topTags?: string[] | undefined;
 
     constructor(data?: ITodoListDto) {
         if (data) {
@@ -1024,6 +1029,7 @@ export class TodoListDto implements ITodoListDto {
             this.id = _data["id"];
             this.title = _data["title"];
             this.colour = _data["colour"];
+            this.topTags = _data["topTags"];
             if (Array.isArray(_data["items"])) {
                 this.items = [] as any;
                 for (let item of _data["items"])
@@ -1044,6 +1050,7 @@ export class TodoListDto implements ITodoListDto {
         data["id"] = this.id;
         data["title"] = this.title;
         data["colour"] = this.colour;
+        data["topTags"] = this.topTags;
         if (Array.isArray(this.items)) {
             data["items"] = [];
             for (let item of this.items)
@@ -1058,6 +1065,7 @@ export interface ITodoListDto {
     title?: string | undefined;
     colour?: string | undefined;
     items?: TodoItemDto[];
+    topTags?: string[] | undefined;
 }
 
 export class TodoItemDto implements ITodoItemDto {
@@ -1068,6 +1076,7 @@ export class TodoItemDto implements ITodoItemDto {
     priority?: number;
     note?: string | undefined;
     colour?: string | undefined;
+    tags?: string[] | undefined;
 
     constructor(data?: ITodoItemDto) {
         if (data) {
@@ -1087,6 +1096,7 @@ export class TodoItemDto implements ITodoItemDto {
             this.priority = _data["priority"];
             this.note = _data["note"];
             this.colour = _data["colour"];
+            this.tags = _data["tags"];
         }
     }
 
@@ -1106,6 +1116,7 @@ export class TodoItemDto implements ITodoItemDto {
         data["priority"] = this.priority;
         data["note"] = this.note;
         data["colour"] = this.colour;
+        data["tags"] = this.tags;
         return data;
     }
 }
