@@ -31,30 +31,81 @@
     </div>
     <div class="col-sm-8" *ngIf="selectedList">
       <div class="clearfix">
+        <div class="mb-3">
+          <input class="form-control my-2"
+                 type="text"
+                 placeholder="Search by title, note, or tag..."
+                 [(ngModel)]="searchQuery" />
+        </div>
+                <!-- TOP TAGS SHORTCUT UI -->
+                <div *ngIf="selectedList.topTags?.length" class="mb-3">
+                  <label class="fw-bold me-2">Top Tags:</label>
+                  <div class="d-flex flex-wrap gap-2">
+                    <button type="button"
+                            class="btn btn-outline-info btn-sm"
+                            *ngFor="let tag of selectedList.topTags"
+                            (click)="toggleTagFilter(tag)"
+                            [ngClass]="{
+                'btn-outline-info': !selectedTagFilters.includes(tag),
+                'btn-info': selectedTagFilters.includes(tag)
+              }">
+              {{ tag }}
+            </button>
+
+            <button *ngIf="selectedTagFilters.length"
+                    class="btn btn-sm btn-outline-secondary ms-2"
+                    (click)="clearTagFilters()">
+              Clear Filter
+            </button>
+          </div>
+        </div>
+
         <h2 class="float-start">{{ selectedList.title }}</h2>
         <button id="listOptions" class="btn btn-default float-end" title="List Options..."
-          (click)="showListOptionsModal(listOptionsModalTemplate)">
+                (click)="showListOptionsModal(listOptionsModalTemplate)">
           <i class="bi bi-three-dots-vertical"></i>
         </button>
       </div>
       <ul id="todo-items" class="list-group mb-2">
-        <li class="list-group-item" [ngStyle]="{ 'background-color': item.colour }" *ngFor="let item of selectedList.items; index as i">
+
+        <div class="mb-3">
+          <label class="fw-bold me-2">Filter by tags:</label>
+          <ng-container *ngFor="let tag of getAllTags()">
+            <button class="btn btn-sm me-1 mb-1"
+                    [ngClass]="{
+                      'btn-outline-primary': !selectedTagFilters.includes(tag),
+                      'btn-primary': selectedTagFilters.includes(tag)
+                    }"
+                    (click)="toggleTagFilter(tag)">
+              {{ tag }}
+            </button>
+          </ng-container>
+          <button *ngIf="selectedTagFilters.length"
+                  class="btn btn-sm btn-outline-secondary ms-2"
+                  (click)="clearTagFilters()">
+            Clear Filter
+          </button>
+        </div>
+        <li class="list-group-item" [ngStyle]="{ 'background-color': item.colour }" *ngFor="let item of filteredItems; index as i">
           <div class="d-flex">
             <div class="todo-item-checkbox">
               <input type="checkbox" [(ngModel)]="item.done" (change)="updateItem(item)" />
             </div>
             <div class="flex-fill">
               <input id="{{ 'itemTitle' + i }}" *ngIf="item == selectedItem" type="text"
-                class="form-control item-input-control" [(ngModel)]="item.title" (keyup.enter)="updateItem(item, true)"
-                (blur)="updateItem(item)" autofocus="autofocus" />
+                     class="form-control item-input-control" [(ngModel)]="item.title" (keyup.enter)="updateItem(item, true)"
+                     (blur)="updateItem(item)" autofocus="autofocus" />
               <div class="todo-item-title" *ngIf="item != selectedItem" [ngClass]="{ 'done-todo': item.done }"
-                (click)="editItem(item, 'itemTitle' + i)" class="form-control item-input-control">
+                   (click)="editItem(item, 'itemTitle' + i)" class="form-control item-input-control">
                 <span>{{ item.title }}</span>
               </div>
+              <!--<div class="todo-item-tags mt-1" *ngIf="item.tags?.length">
+          <span *ngFor="let tag of item.tags" class="badge bg-secondary me-1">{{ tag }}</span>
+        </div>-->
             </div>
             <div class="todo-item-commands">
               <button *ngIf="item.id != 0" (click)="showItemDetailsModal(itemDetailsModalTemplate, item)"
-                class="btn btn-default btn-xs" role="button">
+                      class="btn btn-default btn-xs" role="button">
                 <i class="bi bi-three-dots-vertical"></i>
               </button>
             </div>
@@ -138,6 +189,27 @@
           </option>
         </select>
       </div>
+      <div class="form-group" [formGroup]="itemDetailsFormGroup">
+        <label for="tags">Tags</label>
+        <div class="mb-2 d-flex flex-wrap gap-1">
+          <span *ngFor="let tag of tags" class="badge bg-primary d-inline-flex align-items-center px-2 py-1 rounded-pill">
+            <span>{{ tag }}</span>
+            <button type="button"
+                    class="btn p-0 ms-2 d-flex align-items-center"
+                    style="background: transparent; border: none; font-size: 0.6rem; line-height: 1;"
+                    aria-label="Remove"
+                    (click)="removeTag(tag)">
+              <span aria-hidden="true" class="text-white">&times;</span>
+            </button>
+          </span>
+        </div>
+        <input type="text"
+               class="form-control"
+               placeholder="Type a tag and press Enter"
+               [formControl]="tagInputControl"
+               (keydown.enter)="addTag()" />
+      </div>
+
     </form>
     <div *ngIf="debug">
       <pre>{{ itemDetailsFormGroup.value | json }}</pre>

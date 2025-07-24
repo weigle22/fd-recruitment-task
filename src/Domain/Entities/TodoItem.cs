@@ -30,4 +30,6 @@ public class TodoItem : BaseAuditableEntity
     }
 
     public TodoList List { get; set; } = null!;
+
+    public List<string>? Tags { get; set; } = new();
 }

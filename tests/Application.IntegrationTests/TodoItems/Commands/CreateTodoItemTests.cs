@@ -33,7 +33,9 @@ public class CreateTodoItemTests : BaseTestFixture
         var command = new CreateTodoItemCommand
         {
             ListId = listId,
-            Title = "Tasks"
+            Title = "Tasks",
+            Colour = "#ffcc00",
+            Tags = new List<string> { "work", "urgent" }
         };
 
         var itemId = await SendAsync(command);
@@ -43,9 +45,36 @@ public class CreateTodoItemTests : BaseTestFixture
         item.Should().NotBeNull();
         item!.ListId.Should().Be(command.ListId);
         item.Title.Should().Be(command.Title);
+        item.Colour.Should().Be(command.Colour);
+        item.Tags.Should().BeEquivalentTo(command.Tags);
         item.CreatedBy.Should().Be(userId);
         item.Created.Should().BeCloseTo(DateTime.Now, TimeSpan.FromMilliseconds(10000));
         item.LastModifiedBy.Should().Be(userId);
         item.LastModified.Should().BeCloseTo(DateTime.Now, TimeSpan.FromMilliseconds(10000));
     }
+
+    [Test]
+    public async Task ShouldAllowEmptyTagsAndColour()
+    {
+        var listId = await SendAsync(new CreateTodoListCommand
+        {
+            Title = "Empty Tags List"
+        });
+
+        var command = new CreateTodoItemCommand
+        {
+            ListId = listId,
+            Title = "No tags and colour"
+            // Colour and Tags left null
+        };
+
+        var itemId = await SendAsync(command);
+
+        var item = await FindAsync<TodoItem>(itemId);
+
+        item.Should().NotBeNull();
+        item!.Colour.Should().BeNull();
+        item.Tags.Should().BeNull(); // or BeEmpty() depending on how you initialize it in the entity
+    }
+
 }

@@ -1,8 +1,10 @@
 ﻿using System.Reflection;
+using System.Text.Json;
 using Duende.IdentityServer.EntityFramework.Options;
 using MediatR;
 using Microsoft.AspNetCore.ApiAuthorization.IdentityServer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Options;
 using Todo_App.Application.Common.Interfaces;
 using Todo_App.Domain.Entities;
@@ -36,6 +38,16 @@ public class ApplicationDbContext : ApiAuthorizationDbContext<ApplicationUser>, 
         builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
 
         base.OnModelCreating(builder);
+        builder.Entity<TodoItem>()
+                .Property(e => e.Tags)
+                .HasConversion(
+                    v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
+                    v => JsonSerializer.Deserialize<List<string>>(v, (JsonSerializerOptions?)null)).Metadata.SetValueComparer(
+                    new ValueComparer<List<string>>(
+                        (c1, c2) => c1 != null && c2 != null && c1.SequenceEqual(c2),
+                        c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
+                        c => c.ToList()
+                    ));
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
